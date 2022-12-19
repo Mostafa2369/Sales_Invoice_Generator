@@ -178,7 +178,7 @@ public class MainFrame extends JFrame implements ActionListener {
                     }
                     try {
                         InvoicesTable data = new InvoicesTable();
-                        String[][] dataList = data.data("InvoiceHeader.csv");
+                        String[][] dataList = data.data("InvoiceHeader.csv","InvoiceLine.csv");
                         for (int i = 0; i < dataList.length; i++) {
                             if (dataList[i][0].equals(s)) {
                                 invoiceNum = dataList[i][0];
@@ -216,8 +216,15 @@ public class MainFrame extends JFrame implements ActionListener {
             path = fc.getSelectedFile().getPath();
 
         }
+        JFileChooser fc2 = new JFileChooser();
+        int result2 = fc.showOpenDialog(this);
+        String path2 = "";
+        if (result == JFileChooser.APPROVE_OPTION) {
+            path2 = fc.getSelectedFile().getPath();
+
+        }
         InvoicesTable table = new InvoicesTable();
-        String[][] data = table.data(path);
+        String[][] data = table.data(path,path2);
         remove(k);
         mInvoicesTable = new InvoicesTable(data);
         invoicesTable = mInvoicesTable.getTable();
@@ -309,7 +316,7 @@ public class MainFrame extends JFrame implements ActionListener {
     public void cancelButton() throws IOException {
 
         InvoicesTable data = new InvoicesTable();
-        String[][] dataList = data.data("InvoiceHeader.csv");
+        String[][] dataList = data.data("InvoiceHeader.csv","InvoiceLine.csv");
         for (int i = 0; i < dataList.length; i++) {
             if (dataList[i][0].equals(s)) {
                 invoiceNum = dataList[i][0];

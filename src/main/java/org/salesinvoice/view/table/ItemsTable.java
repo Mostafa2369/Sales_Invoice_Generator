@@ -37,7 +37,7 @@ public class ItemsTable extends JTable {
         String path = "InvoiceHeader.csv";
         ArrayList<InvoiceHeader> invoicesList = new ArrayList<InvoiceHeader>();
 
-        invoicesList = invoicesData.readFile(path);
+        invoicesList = invoicesData.readFile(path,"InvoiceLine.csv");
 
         for (int i = 0; i < invoicesList.size(); i++) {
               if(invoicesList.get(i).getInvoiceNum()==invoiceNum){

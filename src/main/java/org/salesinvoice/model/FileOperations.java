@@ -21,7 +21,7 @@ public class FileOperations extends Component {
 
    }
 
-    public  ArrayList<InvoiceHeader> readFile(String path) throws IOException {
+    public  ArrayList<InvoiceHeader> readFile(String path,String path2) throws IOException {
 
         mReadFile = new ArrayList<InvoiceHeader>();
 
@@ -33,7 +33,7 @@ public class FileOperations extends Component {
                 String[] invoiceValues = line.split(",");
 
                 mReadItems = new ArrayList<InvoiceLines>();
-                try (BufferedReader br1 = new BufferedReader(new FileReader("InvoiceLine.csv"))) {
+                try (BufferedReader br1 = new BufferedReader(new FileReader(path2))) {
                     String lineItem;
                     while ((lineItem = br1.readLine()) != null) {
 
@@ -75,7 +75,7 @@ public class FileOperations extends Component {
 
     public  void testRead(String path) throws IOException {
      data=new FileOperations();
-        ArrayList<InvoiceHeader> test = data.readFile(path);
+        ArrayList<InvoiceHeader> test = data.readFile(path,"InvoiceLine.csv");
         for (int i = 0; i < test.size(); i++) {
             System.out.println(test.get(i).getInvoiceNum());
             System.out.println("{");

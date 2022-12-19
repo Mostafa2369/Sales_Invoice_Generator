@@ -16,7 +16,7 @@ public class InvoicesTable extends JTable {
 
     public InvoicesTable() throws IOException {
 
-        table = new JTable(data("InvoiceHeader.csv"),cols);
+        table = new JTable(data("InvoiceHeader.csv","InvoiceLine.csv"),cols);
 
 }
     public InvoicesTable(String[][] data) throws IOException {
@@ -33,13 +33,13 @@ public class InvoicesTable extends JTable {
         return table;
     }
 
-    public String[][] data(String path1) throws IOException {
+    public String[][] data(String path1,String path2) throws IOException {
        invoicesData = new FileOperations();
 
         String path=path1;
         ArrayList<InvoiceHeader> invoicesList = new ArrayList<InvoiceHeader>();
 
-        invoicesList=invoicesData.readFile(path);
+        invoicesList=invoicesData.readFile(path,path2);
         String[][] dataList =new String[invoicesList.size()][4];
         for (int i = 0; i<invoicesList.size() ; i++) {
 
