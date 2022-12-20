@@ -333,6 +333,36 @@ public class MainFrame extends JFrame implements ActionListener {
         e = new JScrollPane(itemTableList.getTable());
         e.setBounds(710, 288, 604, 186);
         add(e);
+
+        InvoicesTable table2 = new InvoicesTable();
+        String[][] data = table2.data("InvoiceHeader.csv", "InvoiceLine.csv");
+        remove(k);
+        mInvoicesTable = new InvoicesTable(data);
+        invoicesTable = mInvoicesTable.getTable();
+        k = new JScrollPane(invoicesTable);
+        k.setBounds(46, 38, 604, 567);
+        add(k);
+
+        InvoicesTable data22 = new InvoicesTable();
+        String[][] dataList = data22.data("InvoiceHeader.csv", "InvoiceLine.csv");
+        for (int i = 0; i < dataList.length; i++) {
+            if (dataList[i][0].equals(s)) {
+                invoiceNum = dataList[i][0];
+
+                mInvoiceDate.getInvoiceDate().setText(dataList[i][1]);
+                mCustomerName.getCustomerName().setText(dataList[i][2]);
+                totalInvoiceDta = dataList[i][3];
+                invoiceTotalNum.setText(totalInvoiceDta);
+                invoiceNumberNum.setText(invoiceNum);
+
+
+                break;
+            }
+        }
+
+        invoiceTableListener();
+
+
     }
 
     public void deleteItem() throws IOException {
@@ -381,7 +411,7 @@ public class MainFrame extends JFrame implements ActionListener {
         //---------------------------------------------
 
 
-        invoiceTableListener();
+
 
         ItemsTable table = new ItemsTable();
         itemTableList = new ItemsTable(table.data(s));
@@ -390,6 +420,35 @@ public class MainFrame extends JFrame implements ActionListener {
         e.setBounds(710, 288, 604, 186);
         add(e);
 
+        InvoicesTable table2 = new InvoicesTable();
+        String[][] data = table2.data("InvoiceHeader.csv", "InvoiceLine.csv");
+        remove(k);
+        mInvoicesTable = new InvoicesTable(data);
+        invoicesTable = mInvoicesTable.getTable();
+        k = new JScrollPane(invoicesTable);
+        k.setBounds(46, 38, 604, 567);
+        add(k);
+
+        InvoicesTable data22 = new InvoicesTable();
+        String[][] dataList = data22.data("InvoiceHeader.csv", "InvoiceLine.csv");
+        for (int i = 0; i < dataList.length; i++) {
+            if (dataList[i][0].equals(s)) {
+                invoiceNum = dataList[i][0];
+
+                mInvoiceDate.getInvoiceDate().setText(dataList[i][1]);
+                mCustomerName.getCustomerName().setText(dataList[i][2]);
+                totalInvoiceDta = dataList[i][3];
+                invoiceTotalNum.setText(totalInvoiceDta);
+                invoiceNumberNum.setText(invoiceNum);
+
+
+                break;
+            }
+        }
+
+
+
+        invoiceTableListener();
     }
 
     public void deleteInvoice() throws IOException {
@@ -439,7 +498,20 @@ public class MainFrame extends JFrame implements ActionListener {
         e = new JScrollPane(itemTableList.getTable());
         e.setBounds(710, 288, 604, 186);
         add(e);
+
+        InvoicesTable table = new InvoicesTable();
+        remove(k);
+        String[][] data2 = table.data("InvoiceHeader.csv", "InvoiceLine.csv");
+
+        mInvoicesTable = new InvoicesTable(data2);
+        invoicesTable = mInvoicesTable.getTable();
+        k = new JScrollPane(invoicesTable);
+        k.setBounds(46, 38, 604, 567);
+        add(k);
+
         invoiceTableListener();
+
+
     }
 
     public void createButton() throws IOException {
@@ -505,22 +577,7 @@ public class MainFrame extends JFrame implements ActionListener {
         invoiceTableListener();
     }
 
-    public int itemListener() {
 
-        itemTableList.getTable().getSelectionModel().addListSelectionListener(new ListSelectionListener() {
-            @Override
-            public void valueChanged(ListSelectionEvent event) {
-
-                if (itemTableList.getTable().getSelectedRow() > -1) {
-                    s1 = itemTableList.getTable().getRowCount();
-
-                }
-            }
-
-
-        });
-        return itemTableList.getTable().getSelectedRowCount();
-    }
 
 
 }
