@@ -3,6 +3,7 @@ package org.salesinvoice.view;
 import com.opencsv.CSVWriter;
 import org.salesinvoice.model.FileOperations;
 import org.salesinvoice.model.InvoiceHeader;
+import org.salesinvoice.model.InvoiceLines;
 import org.salesinvoice.view.button.Cancel;
 import org.salesinvoice.view.button.CreateNewInvoice;
 import org.salesinvoice.view.button.DeleteInvoice;
@@ -18,15 +19,13 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileWriter;
-import java.io.IOException;
+import java.io.*;
 import java.util.ArrayList;
 
 public class MainFrame extends JFrame implements ActionListener {
     InvoicesTable mInvoicesTable;
     Cancel mCancel;
+    int s1=0;
     ItemsTable mItemsTable;
     String totalInvoiceDta = "";
     JTable invoicesTable;
@@ -46,6 +45,8 @@ public class MainFrame extends JFrame implements ActionListener {
 
     public MainFrame() throws IOException {
         super("Sales Invoices Generator");
+        e = new JScrollPane();
+        itemTableList = new ItemsTable();
         mInvoicesTable = new InvoicesTable();
         mItemsTable = new ItemsTable();
         invoicesTable = mInvoicesTable.getTable();
@@ -62,7 +63,7 @@ public class MainFrame extends JFrame implements ActionListener {
         k.setBounds(46, 38, 604, 567);
         add(k);
         mCancel.getCancel().addActionListener(this);
-        mCancel.getCancel().setActionCommand("cancel");
+        mCancel.getCancel().setActionCommand("Delete Item");
         add(mCancel.getCancel());
         mCreateNewInvoice.getmCreateNewInvoice().addActionListener(this);
         mCreateNewInvoice.getmCreateNewInvoice().setActionCommand("create");
@@ -71,7 +72,7 @@ public class MainFrame extends JFrame implements ActionListener {
         mDeleteInvoice.getmDeleteInvoice().addActionListener(this);
         mDeleteInvoice.getmDeleteInvoice().setActionCommand("delete");
         mSave.getmSave().addActionListener(this);
-        mSave.getmSave().setActionCommand("saveButton");
+        mSave.getmSave().setActionCommand("createItem");
         add(mSave.getmSave());
         JLabel invoiceNumber = new JLabel("Invoice Number   ");
         invoiceNumber.setBounds(722, 74, 100, 13);
@@ -107,7 +108,10 @@ public class MainFrame extends JFrame implements ActionListener {
         setSize(1400, 800);
         setLocation(50, 50);
         setDefaultCloseOperation(EXIT_ON_CLOSE);
+
+
     }
+
     @Override
     public void actionPerformed(ActionEvent e) {
         switch (e.getActionCommand()) {
@@ -126,16 +130,16 @@ public class MainFrame extends JFrame implements ActionListener {
                 }
 
                 break;
-            case "saveButton":
+            case "createItem":
                 try {
-                    saveButton(invoicesTable);
+                    createItem();
                 } catch (IOException ex) {
                     throw new RuntimeException(ex);
                 }
                 break;
-            case "cancel":
+            case "Delete Item":
                 try {
-                    cancelButton();
+                    deleteItem();
                 } catch (IOException ex) {
                     throw new RuntimeException(ex);
                 }
@@ -158,7 +162,9 @@ public class MainFrame extends JFrame implements ActionListener {
         }
 
     }
+
     public void invoiceTableListener() {
+
         invoicesTable.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
             @Override
             public void valueChanged(ListSelectionEvent event) {
@@ -168,17 +174,19 @@ public class MainFrame extends JFrame implements ActionListener {
                     s = invoicesTable.getValueAt(invoicesTable.getSelectedRow(), 0).toString();
                     ItemsTable table = new ItemsTable();
                     try {
+                        remove(e);
                         itemTableList = new ItemsTable(table.data(s));
                         e = new JScrollPane(itemTableList.getTable());
                         e.setBounds(710, 288, 604, 186);
                         add(e);
+                       // System.out.println(itemListener());
 
                     } catch (IOException ex) {
                         throw new RuntimeException(ex);
                     }
                     try {
                         InvoicesTable data = new InvoicesTable();
-                        String[][] dataList = data.data("InvoiceHeader.csv","InvoiceLine.csv");
+                        String[][] dataList = data.data("InvoiceHeader.csv", "InvoiceLine.csv");
                         for (int i = 0; i < dataList.length; i++) {
                             if (dataList[i][0].equals(s)) {
                                 invoiceNum = dataList[i][0];
@@ -208,6 +216,7 @@ public class MainFrame extends JFrame implements ActionListener {
 
 
     }
+
     public void loadData() throws IOException {
         JFileChooser fc = new JFileChooser();
         int result = fc.showOpenDialog(this);
@@ -224,7 +233,7 @@ public class MainFrame extends JFrame implements ActionListener {
 
         }
         InvoicesTable table = new InvoicesTable();
-        String[][] data = table.data(path,path2);
+        String[][] data = table.data(path, path2);
         remove(k);
         mInvoicesTable = new InvoicesTable(data);
         invoicesTable = mInvoicesTable.getTable();
@@ -235,6 +244,7 @@ public class MainFrame extends JFrame implements ActionListener {
 
         invoiceTableListener();
     }
+
     public ArrayList<InvoiceHeader> invoiceTableToList(JTable table) {
         String invoNum;
         String date;
@@ -265,72 +275,113 @@ public class MainFrame extends JFrame implements ActionListener {
 
     }
 
-    public void saveButton(JTable table) throws IOException {
-        String invoiceNum = invoiceNumberNum.getText();
-        String invoiceDate = mInvoiceDate.getInvoiceDate().getText();
-        String customerName = mCustomerName.getCustomerName().getText();
-        String invoiceTotal = invoiceTotalNum.getText();
-        String invoNum;
-        String date;
-        String name;
-        String total;
-        String[][] invoiceList = new String[table.getModel().getRowCount()][table.getModel().getColumnCount()];
+    public void createItem() throws IOException {
+        ItemsTable table = new ItemsTable();
+        JTextField xField = new JTextField(20);
+        JTextField yField = new JTextField(20);
+        JTextField zField = new JTextField(20);
+        String name1 = "";
+        String price = "";
+        String count = "";
+        JPanel myPanel = new JPanel();
+        myPanel.add(new JLabel("Item Name: "));
+        myPanel.add(xField);
+        myPanel.add(new JLabel("Item Price: "));
+        myPanel.add(zField);
+        myPanel.add(Box.createHorizontalStrut(15)); // a spacer
+        myPanel.add(new JLabel("Count: "));
+        myPanel.add(yField);
+        add(myPanel);
+        int result = JOptionPane.showConfirmDialog(null, myPanel, "Please Enter Customer name and Date", JOptionPane.OK_CANCEL_OPTION);
+        if (result == JOptionPane.OK_OPTION) {
+            name1 = xField.getText();
+            price = yField.getText();
+            count = zField.getText();
+        }
 
-        for (int row = 0; row < table.getModel().getRowCount(); row++) {
-            if (((String) table.getModel().getValueAt(row, 0)).equals(invoiceNum)) {
-                invoiceList[row][0] = (String) table.getModel().getValueAt(row, 0);
-                invoiceList[row][1] = invoiceDate;
-                invoiceList[row][2] = customerName;
-                invoiceList[row][3] = (String) table.getModel().getValueAt(row, 3);
 
-            } else {
-                invoiceList[row][0] = (String) table.getModel().getValueAt(row, 0);
-                invoiceList[row][1] = (String) table.getModel().getValueAt(row, 1);
-                invoiceList[row][2] = (String) table.getModel().getValueAt(row, 2);
-                invoiceList[row][3] = (String) table.getModel().getValueAt(row, 3);
+        //read from item csv
+        ArrayList<String[]> invoiceData = new ArrayList<String[]>();
+        try (BufferedReader br1 = new BufferedReader(new FileReader("InvoiceLine.csv"))) {
+            String lineItem;
+            while ((lineItem = br1.readLine()) != null) {
+                String[] itmeValues = lineItem.split(",");
+                invoiceData.add(new String[]{itmeValues[0].replace("\"", ""), itmeValues[1].replace("\"", "")
+                        , itmeValues[2].replace("\"", ""), itmeValues[3].replace("\"", "")});
             }
         }
+        //----------------------------------------------
+        //todo add item in row
+        invoiceData.add(new String[]{s, name1, price, count});
 
-        remove(k);
-        mInvoicesTable = new InvoicesTable(invoiceList);
-        invoicesTable = mInvoicesTable.getTable();
-        k = new JScrollPane(invoicesTable);
-        k.setBounds(46, 38, 604, 567);
-        add(k);
-        invoiceTableListener();
-        FileOperations s = new FileOperations();
-        CSVWriter invoiceWriter = new CSVWriter(new FileWriter("InvoiceHeader.csv"));
-        ArrayList<String[]> invoiceData = new ArrayList<String[]>();
-        for (int i = 0; i < table.getModel().getRowCount(); ++i) {
-
-            invoiceData.add(new String[]{invoiceList[i][0], invoiceList[i][1], invoiceList[i][2]});
-
-        }
+        //write on csv
+        FileOperations w = new FileOperations();
+        CSVWriter invoiceWriter = new CSVWriter(new FileWriter("InvoiceLine.csv"));
         invoiceWriter.writeAll(invoiceData);
-
         invoiceWriter.close();
-        invoiceTableListener();
-
+        //---------------------------------------------
+        remove(e);
+        itemTableList = new ItemsTable(table.data(s));
+        e = new JScrollPane(itemTableList.getTable());
+        e.setBounds(710, 288, 604, 186);
+        add(e);
     }
 
-    public void cancelButton() throws IOException {
-
-        InvoicesTable data = new InvoicesTable();
-        String[][] dataList = data.data("InvoiceHeader.csv","InvoiceLine.csv");
-        for (int i = 0; i < dataList.length; i++) {
-            if (dataList[i][0].equals(s)) {
-                invoiceNum = dataList[i][0];
-
-                mInvoiceDate.getInvoiceDate().setText(dataList[i][1]);
-                mCustomerName.getCustomerName().setText(dataList[i][2]);
-                totalInvoiceDta = dataList[i][3];
-                invoiceTotalNum.setText(totalInvoiceDta);
-                invoiceNumberNum.setText(invoiceNum);
+    public void deleteItem() throws IOException {
+        int o =itemTableList.getTable().getSelectedRow();
 
 
-                break;
-            }
-        }
+                String itemName="";
+                if (itemTableList.getTable().getSelectedRow() > -1) {
+
+                    itemName = itemTableList.getTable().getValueAt(o, 1).toString();
+
+
+                }
+
+                ArrayList<String[]> invoiceData = new ArrayList<String[]>();
+                try (BufferedReader br1 = new BufferedReader(new FileReader("InvoiceLine.csv"))) {
+                    String lineItem;
+                    while ((lineItem = br1.readLine()) != null) {
+                        String[] itmeValues = lineItem.split(",");
+                       // System.out.println(itmeValues[1].replace("\"", "")+" "+itemName);
+                        if(! (itmeValues[1].replace("\"", "")).equals(itemName)){
+                        invoiceData.add(new String[]{itmeValues[0].replace("\"", ""), itmeValues[1].replace("\"", "")
+                                , itmeValues[2].replace("\"", ""), itmeValues[3].replace("\"", "")});
+                        }
+
+                    }
+                } catch (FileNotFoundException ex) {
+                    throw new RuntimeException(ex);
+                } catch (IOException ex) {
+                    throw new RuntimeException(ex);
+                }
+                //write on csv
+                FileOperations w = new FileOperations();
+                CSVWriter invoiceWriter = null;
+                try {
+                    invoiceWriter = new CSVWriter(new FileWriter("InvoiceLine.csv"));
+                } catch (IOException ex) {
+                    throw new RuntimeException(ex);
+                }
+                invoiceWriter.writeAll(invoiceData);
+                try {
+                    invoiceWriter.close();
+                } catch (IOException ex) {
+                    throw new RuntimeException(ex);
+                }
+                //---------------------------------------------
+
+
+
+                invoiceTableListener();
+
+        ItemsTable table = new ItemsTable();
+        itemTableList = new ItemsTable(table.data(s));
+        remove(e);
+        e = new JScrollPane(itemTableList.getTable());
+        e.setBounds(710, 288, 604, 186);
+        add(e);
 
     }
 
@@ -377,6 +428,7 @@ public class MainFrame extends JFrame implements ActionListener {
         invoiceTotalNum.setText("");
         invoiceNumberNum.setText("");
         itemTableList = new ItemsTable();
+        remove(e);
         e = new JScrollPane(itemTableList.getTable());
         e.setBounds(710, 288, 604, 186);
         add(e);
@@ -439,9 +491,31 @@ public class MainFrame extends JFrame implements ActionListener {
         invoiceTotalNum.setText("");
         invoiceNumberNum.setText("");
         itemTableList = new ItemsTable();
+        remove(e);
         e = new JScrollPane(itemTableList.getTable());
         e.setBounds(710, 288, 604, 186);
         add(e);
         invoiceTableListener();
     }
-}
+
+    public int itemListener(){
+
+        itemTableList.getTable().getSelectionModel().addListSelectionListener(new ListSelectionListener() {
+            @Override
+            public void valueChanged(ListSelectionEvent event) {
+
+                if (itemTableList.getTable().getSelectedRow() > -1) {
+                    s1=itemTableList.getTable().getRowCount();
+
+                }
+            }
+
+
+        });
+          return  itemTableList.getTable().getSelectedRowCount();
+    }
+
+
+
+    }
+

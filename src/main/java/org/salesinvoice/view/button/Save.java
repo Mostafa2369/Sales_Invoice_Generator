@@ -9,7 +9,7 @@ public class Save extends JButton  {
 
     public Save() {
 
-        mSave= new JButton("Save");
+        mSave= new JButton("Create Item");
 
         mSave.setBounds(834, 684, 109, 29);
     }

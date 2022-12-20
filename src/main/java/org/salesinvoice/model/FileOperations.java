@@ -38,9 +38,12 @@ public class FileOperations extends Component {
                     while ((lineItem = br1.readLine()) != null) {
 
                         String[] itmeValues = lineItem.split(",");
-                        if ((invoiceValues[0].replace("\"","")).equals(itmeValues[0])) {
 
-                            InvoiceLines rowItem = new InvoiceLines(itmeValues[1], Double.parseDouble(itmeValues[2]), Integer.parseInt(itmeValues[3]));
+                        if ((invoiceValues[0].replace("\"","")).equals(itmeValues[0].replace("\"",""))) {
+
+                            InvoiceLines rowItem = new InvoiceLines(itmeValues[1].replace("\"",""),
+                                    Double.parseDouble(itmeValues[2].replace("\"","")),
+                                    Integer.parseInt(itmeValues[3].replace("\"","")));
                             mReadItems.add(rowItem);
                         }
 

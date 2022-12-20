@@ -9,7 +9,7 @@ public class Cancel extends JButton  {
 
     public Cancel() {
 
-        cancel = new JButton("Cancel");
+        cancel = new JButton("Delete Item");
         cancel.setBounds(1106, 684, 109, 29);
 
     }

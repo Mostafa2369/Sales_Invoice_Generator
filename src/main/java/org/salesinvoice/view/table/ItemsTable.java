@@ -19,7 +19,7 @@ public class ItemsTable extends JTable {
     }
 
     public ItemsTable(){
-
+        table = new JTable();
     }
 
     public JTable getTable() {
@@ -50,6 +50,7 @@ public class ItemsTable extends JTable {
                 dataList[j][3] = String.valueOf(invoicesList.get(i).getmInvoicesLines().get(j).getCount());
                 dataList[j][4] = String.valueOf(invoicesList.get(i).getmInvoicesLines().get(j).getCount() *
                         invoicesList.get(i).getmInvoicesLines().get(j).getItemPrice());
+
             }
             break;
               }
