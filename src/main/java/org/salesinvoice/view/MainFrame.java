@@ -25,7 +25,7 @@ import java.util.ArrayList;
 public class MainFrame extends JFrame implements ActionListener {
     InvoicesTable mInvoicesTable;
     Cancel mCancel;
-    int s1=0;
+    int s1 = 0;
     ItemsTable mItemsTable;
     String totalInvoiceDta = "";
     JTable invoicesTable;
@@ -59,9 +59,17 @@ public class MainFrame extends JFrame implements ActionListener {
         mDeleteInvoice = new DeleteInvoice();
         mSave = new Save();
         setLayout(null);
-        k = new JScrollPane(invoicesTable);
+        JLabel d = new JLabel("Invoices Table");
+        d.setBounds(46, 20, 100, 13);
+        add(d);
+        k = new JScrollPane();
         k.setBounds(46, 38, 604, 567);
         add(k);
+        itemTableList = new ItemsTable();
+        e = new JScrollPane(itemTableList.getTable());
+
+        e.setBounds(710, 288, 604, 186);
+        add(e);
         mCancel.getCancel().addActionListener(this);
         mCancel.getCancel().setActionCommand("Delete Item");
         add(mCancel.getCancel());
@@ -179,7 +187,7 @@ public class MainFrame extends JFrame implements ActionListener {
                         e = new JScrollPane(itemTableList.getTable());
                         e.setBounds(710, 288, 604, 186);
                         add(e);
-                       // System.out.println(itemListener());
+                        // System.out.println(itemListener());
 
                     } catch (IOException ex) {
                         throw new RuntimeException(ex);
@@ -328,53 +336,52 @@ public class MainFrame extends JFrame implements ActionListener {
     }
 
     public void deleteItem() throws IOException {
-        int o =itemTableList.getTable().getSelectedRow();
+        int o = itemTableList.getTable().getSelectedRow();
 
 
-                String itemName="";
-                if (itemTableList.getTable().getSelectedRow() > -1) {
+        String itemName = "";
+        if (itemTableList.getTable().getSelectedRow() > -1) {
 
-                    itemName = itemTableList.getTable().getValueAt(o, 1).toString();
+            itemName = itemTableList.getTable().getValueAt(o, 1).toString();
 
 
+        }
+
+        ArrayList<String[]> invoiceData = new ArrayList<String[]>();
+        try (BufferedReader br1 = new BufferedReader(new FileReader("InvoiceLine.csv"))) {
+            String lineItem;
+            while ((lineItem = br1.readLine()) != null) {
+                String[] itmeValues = lineItem.split(",");
+                // System.out.println(itmeValues[1].replace("\"", "")+" "+itemName);
+                if (!(itmeValues[1].replace("\"", "")).equals(itemName)) {
+                    invoiceData.add(new String[]{itmeValues[0].replace("\"", ""), itmeValues[1].replace("\"", "")
+                            , itmeValues[2].replace("\"", ""), itmeValues[3].replace("\"", "")});
                 }
 
-                ArrayList<String[]> invoiceData = new ArrayList<String[]>();
-                try (BufferedReader br1 = new BufferedReader(new FileReader("InvoiceLine.csv"))) {
-                    String lineItem;
-                    while ((lineItem = br1.readLine()) != null) {
-                        String[] itmeValues = lineItem.split(",");
-                       // System.out.println(itmeValues[1].replace("\"", "")+" "+itemName);
-                        if(! (itmeValues[1].replace("\"", "")).equals(itemName)){
-                        invoiceData.add(new String[]{itmeValues[0].replace("\"", ""), itmeValues[1].replace("\"", "")
-                                , itmeValues[2].replace("\"", ""), itmeValues[3].replace("\"", "")});
-                        }
-
-                    }
-                } catch (FileNotFoundException ex) {
-                    throw new RuntimeException(ex);
-                } catch (IOException ex) {
-                    throw new RuntimeException(ex);
-                }
-                //write on csv
-                FileOperations w = new FileOperations();
-                CSVWriter invoiceWriter = null;
-                try {
-                    invoiceWriter = new CSVWriter(new FileWriter("InvoiceLine.csv"));
-                } catch (IOException ex) {
-                    throw new RuntimeException(ex);
-                }
-                invoiceWriter.writeAll(invoiceData);
-                try {
-                    invoiceWriter.close();
-                } catch (IOException ex) {
-                    throw new RuntimeException(ex);
-                }
-                //---------------------------------------------
+            }
+        } catch (FileNotFoundException ex) {
+            throw new RuntimeException(ex);
+        } catch (IOException ex) {
+            throw new RuntimeException(ex);
+        }
+        //write on csv
+        FileOperations w = new FileOperations();
+        CSVWriter invoiceWriter = null;
+        try {
+            invoiceWriter = new CSVWriter(new FileWriter("InvoiceLine.csv"));
+        } catch (IOException ex) {
+            throw new RuntimeException(ex);
+        }
+        invoiceWriter.writeAll(invoiceData);
+        try {
+            invoiceWriter.close();
+        } catch (IOException ex) {
+            throw new RuntimeException(ex);
+        }
+        //---------------------------------------------
 
 
-
-                invoiceTableListener();
+        invoiceTableListener();
 
         ItemsTable table = new ItemsTable();
         itemTableList = new ItemsTable(table.data(s));
@@ -498,24 +505,23 @@ public class MainFrame extends JFrame implements ActionListener {
         invoiceTableListener();
     }
 
-    public int itemListener(){
+    public int itemListener() {
 
         itemTableList.getTable().getSelectionModel().addListSelectionListener(new ListSelectionListener() {
             @Override
             public void valueChanged(ListSelectionEvent event) {
 
                 if (itemTableList.getTable().getSelectedRow() > -1) {
-                    s1=itemTableList.getTable().getRowCount();
+                    s1 = itemTableList.getTable().getRowCount();
 
                 }
             }
 
 
         });
-          return  itemTableList.getTable().getSelectedRowCount();
+        return itemTableList.getTable().getSelectedRowCount();
     }
 
 
-
-    }
+}
 
