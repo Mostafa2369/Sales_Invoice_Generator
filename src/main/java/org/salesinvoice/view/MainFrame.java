@@ -509,6 +509,40 @@ public class MainFrame extends JFrame implements ActionListener {
         k.setBounds(46, 38, 604, 567);
         add(k);
 
+
+        ArrayList<String[]> invoiceData = new ArrayList<String[]>();
+        try (BufferedReader br1 = new BufferedReader(new FileReader("InvoiceLine.csv"))) {
+            String lineItem;
+            while ((lineItem = br1.readLine()) != null) {
+                String[] itmeValues = lineItem.split(",");
+                // System.out.println(itmeValues[1].replace("\"", "")+" "+itemName);
+                if (!(itmeValues[0].replace("\"", "")).equals(s)) {
+                    invoiceData.add(new String[]{itmeValues[0].replace("\"", ""), itmeValues[1].replace("\"", "")
+                            , itmeValues[2].replace("\"", ""), itmeValues[3].replace("\"", "")});
+                }
+
+            }
+        } catch (FileNotFoundException ex) {
+            throw new RuntimeException(ex);
+        } catch (IOException ex) {
+            throw new RuntimeException(ex);
+        }
+        //write on csv
+        FileOperations w = new FileOperations();
+        CSVWriter invoiceWriter = null;
+        try {
+            invoiceWriter = new CSVWriter(new FileWriter("InvoiceLine.csv"));
+        } catch (IOException ex) {
+            throw new RuntimeException(ex);
+        }
+        invoiceWriter.writeAll(invoiceData);
+        try {
+            invoiceWriter.close();
+        } catch (IOException ex) {
+            throw new RuntimeException(ex);
+        }
+
+
         invoiceTableListener();
 
 
