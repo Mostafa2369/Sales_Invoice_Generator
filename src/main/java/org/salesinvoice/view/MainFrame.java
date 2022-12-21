@@ -300,7 +300,7 @@ public class MainFrame extends JFrame implements ActionListener {
         myPanel.add(new JLabel("Count: "));
         myPanel.add(yField);
         add(myPanel);
-        int result = JOptionPane.showConfirmDialog(null, myPanel, "Please Enter Customer name and Date", JOptionPane.OK_CANCEL_OPTION);
+        int result = JOptionPane.showConfirmDialog(null, myPanel, "Please Enter Item Information", JOptionPane.OK_CANCEL_OPTION);
         if (result == JOptionPane.OK_OPTION) {
             name1 = xField.getText();
             price = yField.getText();
